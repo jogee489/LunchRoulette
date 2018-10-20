@@ -10,6 +10,8 @@ class ListActivity : AppCompatActivity() {
     lateinit var restaurantsDBHelper : RestaurantsDBHelper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        restaurantsDBHelper = RestaurantsDBHelper(this)
+
         setContentView(R.layout.list_page)
         println("On the list page")
         getLocationList()
@@ -20,8 +22,6 @@ class ListActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-
-        restaurantsDBHelper = RestaurantsDBHelper(this)
     }
 
 //    override fun onPostCreate(savedInstanceState: Bundle?) {
