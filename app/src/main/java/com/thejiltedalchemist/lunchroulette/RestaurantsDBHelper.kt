@@ -63,28 +63,30 @@ class RestaurantsDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
     fun readResturant(name: String): ArrayList<RestaurantsModel> {
         val users = ArrayList<RestaurantsModel>()
         val db = writableDatabase
-        var cursor: Cursor? = null
         try {
-            cursor = db.rawQuery("select * from " + RestaurantsEntry.TABLE_NAME + " WHERE " +
-                    RestaurantsEntry.COLUMN_NAME + "='" + name + "'", null)
+            val query = """
+SELECT *
+FROM ${RestaurantsEntry.TABLE_NAME}
+WHERE ${RestaurantsEntry.COLUMN_NAME}=?
+"""
+            db.rawQuery(query, arrayOf(name)).use { cursor ->
+                val nameColumn = cursor.getColumnIndex(RestaurantsEntry.COLUMN_NAME)
+                val addressColumn = cursor.getColumnIndex(RestaurantsEntry.COLUMN_ADDRESS)
+                while (cursor.moveToNext()) {
+                    users.add(
+                            RestaurantsModel(
+                                    cursor.getString(nameColumn),
+                                    cursor.getString(addressColumn)
+                            )
+                    )
+                }
+                return users
+            }
         } catch (e: SQLiteException) {
             // if table not yet present, create it
             db.execSQL(SQL_CREATE_ENTRIES)
             return ArrayList()
         }
-
-        var name: String
-        var age: String
-        if (cursor!!.moveToFirst()) {
-            while (cursor.isAfterLast == false) {
-                name = cursor.getString(cursor.getColumnIndex(RestaurantsEntry.COLUMN_NAME))
-                age = cursor.getString(cursor.getColumnIndex(RestaurantsEntry.COLUMN_ADDRESS))
-
-                users.add(RestaurantsModel(name, age))
-                cursor.moveToNext()
-            }
-        }
-        return users
     }
 
     fun readAllRestaurants(): ArrayList<RestaurantsModel> {
