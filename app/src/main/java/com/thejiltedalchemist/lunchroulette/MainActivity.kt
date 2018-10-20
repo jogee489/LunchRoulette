@@ -13,15 +13,14 @@ class MainActivity : AppCompatActivity() {
     lateinit var restaurantsDBHelper : RestaurantsDBHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
+        restaurantsDBHelper = RestaurantsDBHelper(this)
+
         setContentView(R.layout.activity_main)
 
-        restaurantsDBHelper = RestaurantsDBHelper(this)
         loadRestaurants()
 
         decideButton.setOnClickListener {
-            println("You clicked me!")
             val random = Random()
             val randomFood = random.nextInt(foodList.count())
             selectedFoodText.text = foodList[randomFood]
