@@ -10,7 +10,8 @@ import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.list_item_restaurant.*
 
 class RestaurantAdapter(private val context: Context,
-                        private val items: ArrayList<RestaurantsModel>)
+                        private val items: ArrayList<RestaurantsModel>,
+                        private val restaurantsDBHelper: RestaurantsDBHelper)
     : RecyclerView.Adapter<ViewHolder>()
 {
 
@@ -24,6 +25,14 @@ class RestaurantAdapter(private val context: Context,
 
     override fun getItemCount(): Int {
         return items.size
+    }
+
+    fun getNameAt(position: Int) = items[position].name
+
+    fun removeAt(position: Int) {
+        restaurantsDBHelper.deleteRestaurant(getNameAt(position))
+        items.removeAt(position)
+        notifyItemRemoved(position)
     }
 }
 

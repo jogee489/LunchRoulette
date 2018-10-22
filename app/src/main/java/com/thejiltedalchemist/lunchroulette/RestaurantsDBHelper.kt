@@ -50,8 +50,7 @@ class RestaurantsDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
         // Gets the data repository in write mode
         val db = writableDatabase
         // Define 'where' part of query.
-//        val selection = RestaurantsEntry.COLUMN_USER_ID + " LIKE ?"
-        val selection = RestaurantsEntry.COLUMN_NAME + "LIKE ?"
+        val selection = RestaurantsEntry.COLUMN_NAME + " LIKE ?"
         // Specify arguments in placeholder order.
         val selectionArgs = arrayOf(name)
         // Issue SQL statement.

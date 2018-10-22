@@ -8,7 +8,7 @@ import java.util.Random
 
 class MainActivity : AppCompatActivity() {
 
-    val foodList = arrayListOf("Chinese", "Burgers", "Pizza", "Thai", "Italian")
+    private val foodList = arrayListOf<String>()
 
     lateinit var restaurantsDBHelper : RestaurantsDBHelper
 
@@ -36,9 +36,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // Switch to the list view on click
         listFoodsButton.setOnClickListener {
-            println("Clicked list food button")
-            val intent = Intent(this, ListActivity::class.java)
+            val intent = Intent(this, RestaurantsListActivity::class.java)
             startActivity(intent)
         }
     }
