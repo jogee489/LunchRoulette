@@ -1,16 +1,12 @@
 package com.thejiltedalchemist.lunchroulette
 
-import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import kotlinx.android.extensions.LayoutContainer
-import kotlinx.android.synthetic.main.list_item_restaurant.*
+import com.thejiltedalchemist.lunchroulette.databinding.ListItemRestaurantBinding
 
-class RestaurantAdapter(private val context: Context,
-                        private val items: ArrayList<RestaurantsModel>,
+class RestaurantAdapter(private val items: ArrayList<RestaurantsModel>,
                         private val restaurantsDBHelper: RestaurantsDBHelper)
     : RecyclerView.Adapter<ViewHolder>()
 {
@@ -20,14 +16,18 @@ class RestaurantAdapter(private val context: Context,
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(LayoutInflater.from(context).inflate(R.layout.list_item_restaurant, parent, false))
+        val binding = ListItemRestaurantBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false)
+        return ViewHolder(binding)
     }
 
     override fun getItemCount(): Int {
         return items.size
     }
 
-    fun getNameAt(position: Int) = items[position].name
+    private fun getNameAt(position: Int) = items[position].name
 
     fun removeAt(position: Int) {
         restaurantsDBHelper.deleteRestaurant(getNameAt(position))
@@ -36,8 +36,8 @@ class RestaurantAdapter(private val context: Context,
     }
 }
 
-class ViewHolder(override val containerView: View)
-    : RecyclerView.ViewHolder(containerView), LayoutContainer
+class ViewHolder(binding: ListItemRestaurantBinding)
+    : RecyclerView.ViewHolder(binding.root)
 {
-     val name: TextView = label
- }
+    val name: TextView = binding.label
+}

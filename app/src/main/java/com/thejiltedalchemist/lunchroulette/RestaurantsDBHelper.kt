@@ -59,7 +59,7 @@ class RestaurantsDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
         return true
     }
 
-    fun readResturant(name: String): ArrayList<RestaurantsModel> {
+    fun readRestaurant(name: String): ArrayList<RestaurantsModel> {
         val users = ArrayList<RestaurantsModel>()
         val db = writableDatabase
         try {
@@ -91,7 +91,7 @@ WHERE ${RestaurantsEntry.COLUMN_NAME}=?
     fun readAllRestaurants(): ArrayList<RestaurantsModel> {
         val users = ArrayList<RestaurantsModel>()
         val db = writableDatabase
-        var cursor: Cursor? = null
+        val cursor: Cursor?
         try {
             cursor = db.rawQuery("select * from " + RestaurantsEntry.TABLE_NAME, null)
         } catch (e: SQLiteException) {
@@ -101,21 +101,22 @@ WHERE ${RestaurantsEntry.COLUMN_NAME}=?
         var name: String
         var age: String
         if (cursor!!.moveToFirst()) {
-            while (cursor.isAfterLast == false) {
-                name = cursor.getString(cursor.getColumnIndex(RestaurantsEntry.COLUMN_NAME))
-                age = cursor.getString(cursor.getColumnIndex(RestaurantsEntry.COLUMN_ADDRESS))
+            while (!cursor.isAfterLast) {
+                name = cursor.getString(cursor.getColumnIndexOrThrow(RestaurantsEntry.COLUMN_NAME))
+                age = cursor.getString(cursor.getColumnIndexOrThrow(RestaurantsEntry.COLUMN_ADDRESS))
 
                 users.add(RestaurantsModel(name, age))
                 cursor.moveToNext()
             }
         }
+        cursor.close()
         return users
     }
 
     companion object {
         // If you change the database schema, you must increment the database version.
-        val DATABASE_VERSION = 1
-        val DATABASE_NAME = "FeedReader.db"
+        const val DATABASE_VERSION = 1
+        const val DATABASE_NAME = "FeedReader.db"
 
         private val SQL_CREATE_ENTRIES =
                 "CREATE TABLE " + RestaurantsEntry.TABLE_NAME + " (" +
