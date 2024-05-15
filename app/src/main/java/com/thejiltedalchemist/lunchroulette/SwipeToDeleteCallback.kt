@@ -7,15 +7,15 @@ import android.graphics.Paint
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.drawable.ColorDrawable
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.helper.ItemTouchHelper
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.ItemTouchHelper
 
 // private val onDelete: (RestaurantsListActivity) -> Unit)
 abstract class SwipeToDeleteCallback(context: Context)
     : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
-    private val deleteIcon = ContextCompat.getDrawable(context, R.drawable.dd_logo)
+    private val deleteIcon = ContextCompat.getDrawable(context, R.drawable.delete_forever)
     private val intrinsicWidth = deleteIcon!!.intrinsicWidth
     private val intrinsicHeight = deleteIcon!!.intrinsicHeight
     private val background = ColorDrawable()
@@ -49,7 +49,7 @@ abstract class SwipeToDeleteCallback(context: Context)
 
         if (isCanceled) {
             clearCanvas(c, itemView.right + dX, itemView.top.toFloat(), itemView.right.toFloat(), itemView.bottom.toFloat())
-            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
+            super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, false)
             return
         }
 

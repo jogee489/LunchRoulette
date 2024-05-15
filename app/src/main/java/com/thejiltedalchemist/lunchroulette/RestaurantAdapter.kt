@@ -1,6 +1,6 @@
 package com.thejiltedalchemist.lunchroulette
 
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
@@ -29,11 +29,20 @@ class RestaurantAdapter(private val items: ArrayList<RestaurantsModel>,
 
     private fun getNameAt(position: Int) = items[position].name
 
+    fun get(position: Int) = items[position]
+
     fun removeAt(position: Int) {
         restaurantsDBHelper.deleteRestaurant(getNameAt(position))
         items.removeAt(position)
         notifyItemRemoved(position)
     }
+
+    fun addAt(position: Int, item: RestaurantsModel) {
+        restaurantsDBHelper.insertRestaurant(item)
+        items.add(position, item)
+        notifyItemInserted(position)
+    }
+
 }
 
 class ViewHolder(binding: ListItemRestaurantBinding)
