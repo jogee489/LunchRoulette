@@ -7,6 +7,35 @@
     android:layout_height="match_parent"
     >
 
+    <EditText
+        android:id="@+id/addFoodText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:ems="10"
+        android:fontFamily="@font/muli_bold"
+        android:hint="add new food..."
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toTopOf="@+id/addFoodButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/addFoodButton"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="224dp"
+        android:layout_height="49dp"
+        android:layout_marginBottom="80dp"
+        android:background="@color/colorPrimary"
+        android:text="Add Food"
+        android:textColor="@android:color/background_light"
+        app:layout_constraintBottom_toTopOf="@+id/backToMain"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <Button
         android:id="@+id/backToMain"
         android:layout_width="0dp"
@@ -29,7 +58,7 @@
         android:paddingTop="8dp"
         android:paddingEnd="8dp"
         android:paddingBottom="10dp"
-        app:layout_constraintBottom_toTopOf="@+id/backToMain"
+        app:layout_constraintBottom_toTopOf="@+id/addFoodText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

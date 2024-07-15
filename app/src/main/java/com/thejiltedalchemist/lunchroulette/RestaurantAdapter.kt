@@ -43,6 +43,11 @@ class RestaurantAdapter(private val items: ArrayList<RestaurantsModel>,
         notifyItemInserted(position)
     }
 
+    fun createNew(locationName: String) {
+        val newLocation = RestaurantsModel(locationName, "address")
+        addAt(items.size, newLocation)
+    }
+
 }
 
 class ViewHolder(binding: ListItemRestaurantBinding)

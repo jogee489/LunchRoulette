@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:fontFamily="@font/muli_bold"
-        android:text="Roll the Dice!"
+        android:text="\?\?\?"
         android:textAlignment="center"
         android:textSize="30sp"
         app:layout_constraintHorizontal_bias="0.501"
@@ -33,6 +33,43 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/dd_logo" />
 
+    <ImageView
+        android:id="@+id/wheel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:rotation="17"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/selectedFoodText"
+        app:srcCompat="@drawable/wheel" />
+
+    <ImageView
+        android:id="@+id/ivTarget"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="181dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="181dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/selectedFoodText"
+        app:srcCompat="@drawable/target" />
+
+    <Button
+        android:id="@+id/listFoodsButton"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="228dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="68dp"
+        android:background="@color/colorPrimary"
+        android:text="List Foods"
+        android:textColor="@android:color/background_light"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wheel" />
+
     <Button
         android:id="@+id/decideButton"
         style="@style/Widget.AppCompat.Button.Borderless"
@@ -46,48 +83,9 @@
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <EditText
-        android:id="@+id/addFoodText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:ems="10"
-        android:fontFamily="@font/muli_bold"
-        android:hint="add new food..."
-        android:inputType="textPersonName"
-        app:layout_constraintBottom_toTopOf="@+id/addFoodButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/addFoodButton"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="224dp"
-        android:layout_height="49dp"
-        android:layout_marginBottom="80dp"
-        android:background="@color/colorPrimary"
-        android:text="Add Food"
-        android:textColor="@android:color/background_light"
-        app:layout_constraintBottom_toTopOf="@+id/decideButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/listFoodsButton"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="228dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:background="@color/colorPrimary"
-        android:text="List Foods"
-        android:textColor="@android:color/background_light"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/addFoodButton" />
+        app:layout_constraintTop_toBottomOf="@+id/listFoodsButton"
+        app:layout_constraintVertical_bias="1.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

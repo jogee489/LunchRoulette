@@ -2,6 +2,7 @@ package com.thejiltedalchemist.lunchroulette
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,7 +19,7 @@ class RestaurantsListActivity : AppCompatActivity() {
     private lateinit var adapter : RestaurantAdapter
     private lateinit var restaurantListViewHolder: RecyclerView
     private lateinit var recentlyDeletedItem: RestaurantsModel
-    private var recentlyDeletedItemPosition = 0
+    private var recentlyDeletedItemPosition = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,7 +29,18 @@ class RestaurantsListActivity : AppCompatActivity() {
         setContentView(listPageBinding.root)
         getLocationList()
         attachOnDeleteCallback()
-
+        
+        listPageBinding.addFoodButton.setOnClickListener {
+            val newFood = listPageBinding.addFoodText.text.toString()
+            if (newFood.isNotBlank()) {
+                adapter.createNew(newFood)
+                listPageBinding.addFoodText.text.clear()
+                Toast.makeText(this@RestaurantsListActivity, "Added $newFood to food list", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this@RestaurantsListActivity, "Food is blank", Toast.LENGTH_SHORT).show()
+            }
+        }
+        
         // Switch back to the main activity
         listPageBinding.backToMain.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
