@@ -47,14 +47,16 @@ class MainActivity : AppCompatActivity() {
 
             button.isEnabled = false
             activityMainBinding.selectedFoodText.text = "???"
-            ivWheel.rotation = 17f //reset the rotation so we will still know the winner
-            // Rotate at least once and land on an item
-            spin = (spin + foodCount) * (360 / foodCount) // in degrees
+            spin *= (360 / foodCount) // winner in degrees
+            ivWheel.rotation = 17f - spin.toFloat()
 
-            //TODO: ensure that the pointer lands on the proper item
-            object : CountDownTimer(spin.toLong()*10, 18) {
+            val spinSpeed = 36 // Picked number to make it look fast!
+            val interval = 50L // Higher to avoid skips
+            val rotations = 3L
+            val spinDuration = (360*rotations*interval)/spinSpeed // Land where we started
+            object : CountDownTimer(spinDuration, interval) {
                 override fun onTick(millisUntilFinished: Long) {
-                    ivWheel.rotation += 36
+                    ivWheel.rotation -= spinSpeed
                 }
 
                 override fun onFinish() {
