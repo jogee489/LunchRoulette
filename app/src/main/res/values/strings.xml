@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Lunch Roulette</string>
+    <string name="default_selection">\???</string>
+    <string name="list_foods">List Foods</string>
+    <string name="spin">Roll The Dice</string>
 </resources>

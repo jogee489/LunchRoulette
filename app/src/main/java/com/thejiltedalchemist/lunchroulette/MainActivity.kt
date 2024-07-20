@@ -34,21 +34,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadRestaurants() {
-        restaurantsDBHelper.readAllRestaurants().forEach { res -> foodList.add(res.name) }
+        val restaurantsList = restaurantsDBHelper.readAllRestaurants()
+        restaurantsList.forEach { res -> foodList.add(res.name) }
         if (foodList.isEmpty()) activityMainBinding.decideButton.isEnabled = false
+        activityMainBinding.rouletteWheel.addRouletteItems(restaurantsList)
     }
 
     private fun pressToSpin(button: Button) {
         button.setOnClickListener {
-            val ivWheel = activityMainBinding.wheel
+            val ivWheel = activityMainBinding.rouletteWheel
             val foodCount = foodList.count()
             var spin = Random().nextInt(foodCount)
             val winner = foodList[spin]
 
             button.isEnabled = false
-            activityMainBinding.selectedFoodText.text = "???"
+            activityMainBinding.selectedFoodText.text = resources.getText(R.string.default_selection)
             spin *= (360 / foodCount) // winner in degrees
-            ivWheel.rotation = 17f - spin.toFloat()
+            ivWheel.rotation = spin.toFloat()
 
             val spinSpeed = 36 // Picked number to make it look fast!
             val interval = 50L // Higher to avoid skips

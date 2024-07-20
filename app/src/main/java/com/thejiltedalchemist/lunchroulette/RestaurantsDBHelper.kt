@@ -36,7 +36,6 @@ class RestaurantsDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
         // Create a new map of values, where column names are the keys
         val values = ContentValues()
         values.put(RestaurantsEntry.COLUMN_NAME, restaurant.name)
-        values.put(RestaurantsEntry.COLUMN_ADDRESS, restaurant.address)
 
         // Insert the new row, returning the primary key value of the new row
         val newRowId = db.insert(RestaurantsEntry.TABLE_NAME, null, values)
@@ -70,12 +69,10 @@ WHERE ${RestaurantsEntry.COLUMN_NAME}=?
 """
             db.rawQuery(query, arrayOf(name)).use { cursor ->
                 val nameColumn = cursor.getColumnIndex(RestaurantsEntry.COLUMN_NAME)
-                val addressColumn = cursor.getColumnIndex(RestaurantsEntry.COLUMN_ADDRESS)
                 while (cursor.moveToNext()) {
                     users.add(
                             RestaurantsModel(
-                                    cursor.getString(nameColumn),
-                                    cursor.getString(addressColumn)
+                                    cursor.getString(nameColumn)
                             )
                     )
                 }
@@ -99,13 +96,11 @@ WHERE ${RestaurantsEntry.COLUMN_NAME}=?
             return ArrayList()
         }
         var name: String
-        var age: String
         if (cursor!!.moveToFirst()) {
             while (!cursor.isAfterLast) {
                 name = cursor.getString(cursor.getColumnIndexOrThrow(RestaurantsEntry.COLUMN_NAME))
-                age = cursor.getString(cursor.getColumnIndexOrThrow(RestaurantsEntry.COLUMN_ADDRESS))
 
-                users.add(RestaurantsModel(name, age))
+                users.add(RestaurantsModel(name))
                 cursor.moveToNext()
             }
         }

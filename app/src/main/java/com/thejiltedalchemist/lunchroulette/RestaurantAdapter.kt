@@ -44,7 +44,7 @@ class RestaurantAdapter(private val items: ArrayList<RestaurantsModel>,
     }
 
     fun createNew(locationName: String) {
-        val newLocation = RestaurantsModel(locationName, "address")
+        val newLocation = RestaurantsModel(locationName)
         addAt(items.size, newLocation)
     }
 
