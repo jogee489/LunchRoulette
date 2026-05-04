@@ -38,6 +38,11 @@ Single-module Android app (Kotlin, minSdk 26, targetSdk 34) with two activities 
 
 **View binding** is enabled project-wide (`viewBinding = true`). Layouts: `activity_main.xml` (main screen), `list_page.xml` (list screen), `list_item_restaurant.xml` (row).
 
+## Git Workflow
+
+- Branch prefixes: `feature/`, `bug/`, `chore/` — always follow this convention.
+- Never merge into `main` without explicit instruction.
+
 ## Known Issues / TODOs
 
 - `onUpgrade` in `RestaurantsDBHelper` calls `onCreate` without dropping the old table — increment `DATABASE_VERSION` when changing the schema and add a proper migration.
