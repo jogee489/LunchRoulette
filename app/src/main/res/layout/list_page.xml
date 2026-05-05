@@ -18,6 +18,7 @@
         android:fontFamily="@font/muli_bold"
         android:hint="add new food..."
         android:inputType="textPersonName"
+        android:maxLength="20"
         app:layout_constraintBottom_toTopOf="@+id/addFoodButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
