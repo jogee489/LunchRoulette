@@ -44,25 +44,29 @@ class MainActivity : AppCompatActivity() {
         button.setOnClickListener {
             val ivWheel = activityMainBinding.rouletteWheel
             val foodCount = foodList.count()
-            var spin = Random().nextInt(foodCount)
-            val winner = foodList[spin]
+            val spinIndex = Random().nextInt(foodCount)
+            val winner = foodList[spinIndex]
 
             button.isEnabled = false
             activityMainBinding.selectedFoodText.text = resources.getText(R.string.default_selection)
-            spin *= (360 / foodCount) // winner in degrees
-            ivWheel.rotation = spin.toFloat()
 
-            val spinSpeed = 36 // Picked number to make it look fast!
-            val interval = 50L // Higher to avoid skips
+            // Pointer sits at 12 o'clock (270° in canvas arc coordinates).
+            // Rotating the view by finalRotation places the centre of slice spinIndex at 270°.
+            val arcAngle = 360f / foodCount
+            val finalRotation = 270f - (spinIndex + 0.5f) * arcAngle
+            val spinSpeed = 36
+            val interval = 50L
             val rotations = 3L
-            val spinDuration = (360*rotations*interval)/spinSpeed // Land where we started
+            val spinDuration = (360 * rotations * interval) / spinSpeed
+            ivWheel.rotation = finalRotation + 360f * rotations
+
             object : CountDownTimer(spinDuration, interval) {
                 override fun onTick(millisUntilFinished: Long) {
                     ivWheel.rotation -= spinSpeed
                 }
 
                 override fun onFinish() {
-                    // enabling the button again
+                    ivWheel.rotation = finalRotation
                     button.isEnabled = true
                     activityMainBinding.selectedFoodText.text = winner
                 }
