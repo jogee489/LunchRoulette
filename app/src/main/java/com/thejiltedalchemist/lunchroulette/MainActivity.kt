@@ -6,10 +6,16 @@ import android.os.CountDownTimer
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.thejiltedalchemist.lunchroulette.databinding.ActivityMainBinding
-import java.util.Random
+import kotlin.random.Random
 
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        private const val SPIN_SPEED = 36f
+        private const val SPIN_INTERVAL_MS = 50L
+        private const val SPIN_ROTATIONS = 3L
+    }
 
     private val foodList = arrayListOf<String>()
     private lateinit var activityMainBinding: ActivityMainBinding
@@ -43,26 +49,23 @@ class MainActivity : AppCompatActivity() {
     private fun pressToSpin(button: Button) {
         button.setOnClickListener {
             val ivWheel = activityMainBinding.rouletteWheel
-            val foodCount = foodList.count()
-            val spinIndex = Random().nextInt(foodCount)
+            val foodCount = foodList.size
+            val spinIndex = Random.nextInt(foodCount)
             val winner = foodList[spinIndex]
 
             button.isEnabled = false
-            activityMainBinding.selectedFoodText.text = resources.getText(R.string.default_selection)
+            activityMainBinding.selectedFoodText.text = getString(R.string.default_selection)
 
             // Pointer sits at 12 o'clock (270° in canvas arc coordinates).
             // Rotating the view by finalRotation places the centre of slice spinIndex at 270°.
             val arcAngle = 360f / foodCount
             val finalRotation = 270f - (spinIndex + 0.5f) * arcAngle
-            val spinSpeed = 36
-            val interval = 50L
-            val rotations = 3L
-            val spinDuration = (360 * rotations * interval) / spinSpeed
-            ivWheel.rotation = finalRotation + 360f * rotations
+            val spinDuration = (360 * SPIN_ROTATIONS * SPIN_INTERVAL_MS) / SPIN_SPEED.toLong()
+            ivWheel.rotation = finalRotation + 360f * SPIN_ROTATIONS
 
-            object : CountDownTimer(spinDuration, interval) {
+            object : CountDownTimer(spinDuration, SPIN_INTERVAL_MS) {
                 override fun onTick(millisUntilFinished: Long) {
-                    ivWheel.rotation -= spinSpeed
+                    ivWheel.rotation -= SPIN_SPEED
                 }
 
                 override fun onFinish() {
