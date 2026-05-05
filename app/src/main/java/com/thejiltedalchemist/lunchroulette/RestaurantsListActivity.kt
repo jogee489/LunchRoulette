@@ -29,26 +29,28 @@ class RestaurantsListActivity : AppCompatActivity() {
         setContentView(listPageBinding.root)
         getLocationList()
         attachOnDeleteCallback()
-        
+
         listPageBinding.addFoodButton.setOnClickListener {
-            val newFood = listPageBinding.addFoodText.text.toString()
-            if (newFood.isNotBlank()) {
-                adapter.createNew(newFood)
-                listPageBinding.addFoodText.text.clear()
-                Toast.makeText(this@RestaurantsListActivity, "Added $newFood to food list", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this@RestaurantsListActivity, "Food is blank", Toast.LENGTH_SHORT).show()
+            val newFood = listPageBinding.addFoodText.text.toString().trim()
+            when {
+                newFood.isBlank() ->
+                    Toast.makeText(this, "Name cannot be blank", Toast.LENGTH_SHORT).show()
+                adapter.itemCount >= MAX_RESTAURANTS ->
+                    Toast.makeText(this, "Maximum of $MAX_RESTAURANTS restaurants reached", Toast.LENGTH_SHORT).show()
+                else -> {
+                    adapter.createNew(newFood)
+                    listPageBinding.addFoodText.text?.clear()
+                    Toast.makeText(this, "Added $newFood", Toast.LENGTH_SHORT).show()
+                }
             }
         }
-        
-        // Switch back to the main activity
+
         listPageBinding.backToMain.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
     }
 
-    // Pull the complete list of locations
     private fun getLocationList() {
         val restaurantList = restaurantsDBHelper.readAllRestaurants()
         adapter = RestaurantAdapter(restaurantList, restaurantsDBHelper)
@@ -58,40 +60,33 @@ class RestaurantsListActivity : AppCompatActivity() {
         restaurantListViewHolder.adapter = adapter
     }
 
-    // Attach the delete callback
     private fun attachOnDeleteCallback() {
         val swipeHandler = object : SwipeToDeleteCallback(this) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 deleteItem(viewHolder.adapterPosition)
             }
         }
-
-        val itemTouchHelper = ItemTouchHelper(swipeHandler)
-        itemTouchHelper.attachToRecyclerView(listPageBinding.restaurantList)
+        ItemTouchHelper(swipeHandler).attachToRecyclerView(listPageBinding.restaurantList)
     }
 
-    // Delete the swiped item and store in case of undo delete
     private fun deleteItem(position: Int) {
         recentlyDeletedItem = adapter.get(position)
         recentlyDeletedItemPosition = position
         adapter.removeAt(position)
-        showUndoSnackbar("Item \"${recentlyDeletedItem.name}\" was deleted.")
+        showUndoSnackbar("\"${recentlyDeletedItem.name}\" deleted.")
     }
 
-    // Display message showing what was deleted and offering an undo button
     private fun showUndoSnackbar(message: String) {
-        val snackbar = Snackbar
-            .make(
-                restaurantListViewHolder,
-                message,
-                Snackbar.LENGTH_LONG
-            )
-        snackbar.setAction("Undo") { undoDelete() }
-        snackbar.show()
+        Snackbar.make(restaurantListViewHolder, message, Snackbar.LENGTH_LONG)
+            .setAction("Undo") { undoDelete() }
+            .show()
     }
 
-    // Restore the recently deleted item to the item list
     private fun undoDelete() {
         adapter.addAt(recentlyDeletedItemPosition, recentlyDeletedItem)
+    }
+
+    companion object {
+        const val MAX_RESTAURANTS = 12
     }
 }
