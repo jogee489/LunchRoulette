@@ -7,6 +7,7 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
+import androidx.core.content.ContextCompat
 
 class RouletteView(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
@@ -19,11 +20,12 @@ class RouletteView(context: Context, attrs: AttributeSet) : View(context, attrs)
     private val centerDarkPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var padding = 10F
     private var radius = 0F
+    private var cachedTextSizePx = 0f
 
-    private val textColor = resources.getColor(R.color.colorAccent)
-    private val colorDark = resources.getColor(R.color.colorPrimaryDark)
-    private val colorLight = resources.getColor(R.color.colorPrimary)
-    private val colorAccent = resources.getColor(R.color.design_default_color_secondary_variant)
+    private val textColor = ContextCompat.getColor(context, R.color.colorAccent)
+    private val colorDark = ContextCompat.getColor(context, R.color.colorPrimaryDark)
+    private val colorLight = ContextCompat.getColor(context, R.color.colorPrimary)
+    private val colorAccent = ContextCompat.getColor(context, R.color.design_default_color_secondary_variant)
     private val sliceColors = listOf(colorDark, colorLight, colorAccent)
 
     init {
@@ -59,6 +61,11 @@ class RouletteView(context: Context, attrs: AttributeSet) : View(context, attrs)
 
     fun addRouletteItems(items: List<RestaurantsModel>) {
         itemList = items
+        cachedTextSizePx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_SP,
+            (120f / items.size.coerceAtLeast(1)).coerceIn(8f, 20f),
+            resources.displayMetrics
+        )
         invalidate()
     }
 
@@ -74,16 +81,12 @@ class RouletteView(context: Context, attrs: AttributeSet) : View(context, attrs)
         val cx = padding + radius / 2
         val cy = padding + radius / 2
 
-        textPaint.textSize = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_SP,
-            (120f / itemList.size).coerceIn(8f, 20f),
-            resources.displayMetrics
-        )
+        textPaint.textSize = cachedTextSizePx
+        val verticalCenter = -(textPaint.ascent() + textPaint.descent()) / 2f
 
         canvas.save()
         canvas.rotate(startAngle + arcAngle / 2, cx, cy)
-        // Draw text along the radius; y offset converts baseline to visual center
-        canvas.drawText(text, cx + radius * 0.35f, cy + textPaint.textSize / 3f, textPaint)
+        canvas.drawText(text, cx + radius * 0.35f, cy + verticalCenter, textPaint)
         canvas.restore()
     }
 
