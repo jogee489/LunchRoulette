@@ -37,7 +37,7 @@
         android:id="@+id/rouletteWheel"
         android:layout_width="315dp"
         android:layout_height="315dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="56dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/selectedFoodText" />
@@ -47,9 +47,10 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:contentDescription="@null"
+        android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/rouletteWheel"
+        app:layout_constraintTop_toBottomOf="@+id/selectedFoodText"
         app:srcCompat="@drawable/target" />
 
     <Button
