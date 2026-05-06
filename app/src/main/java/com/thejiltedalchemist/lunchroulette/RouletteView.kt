@@ -36,33 +36,40 @@ class RouletteView(context: Context,attrs: AttributeSet) : View(context, attrs) 
         setMeasuredDimension(width, width)
     }
 
+    private val sliceColors = listOf(colorDark, colorLight, colorAccent)
+
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (itemList.isEmpty()) {
             return
         }
 
-        var currentAngle = 0F
-        var currentColor = colorDark
-        arcAngle = 360F/itemList.size
+        arcAngle = 360F / itemList.size
         arcPaint.isAntiAlias = true
         arcPaint.isDither = true
-
         rectangle = RectF(padding, padding, padding + radius, padding + radius)
-        for(i in itemList) {
-            println("Drawing item ${i.name} in $currentColor at angle $currentAngle")
-            arcPaint.setColor(currentColor)
-            canvas.drawArc(rectangle, currentAngle, arcAngle, true, arcPaint)
-            writeText(canvas, currentAngle, arcAngle, i.name)
-            when (currentColor) {
-                colorDark -> currentColor = colorLight
-                colorLight -> currentColor = colorAccent
-                colorAccent -> currentColor = colorDark
-            }
 
-            currentAngle += arcAngle
+        itemList.forEachIndexed { index, item ->
+            arcPaint.color = colorForSlice(index, itemList.size)
+            canvas.drawArc(rectangle, index * arcAngle, arcAngle, true, arcPaint)
+            writeText(canvas, index * arcAngle, arcAngle, item.name)
         }
         drawCenter(canvas)
+    }
+
+    // For the last slice, pick whichever color is neither the first slice's color
+    // (wrap-around) nor the previous slice's color (adjacent). With 3 colors there
+    // is always exactly one such choice.
+    private fun colorForSlice(index: Int, total: Int): Int {
+        var colorIndex = index % 3
+        if (index == total - 1 && total > 1) {
+            val firstColorIndex = 0  // first slice is always 0 % 3
+            val prevColorIndex = (total - 2) % 3
+            if (colorIndex == firstColorIndex || colorIndex == prevColorIndex) {
+                colorIndex = (0..2).first { it != firstColorIndex && it != prevColorIndex }
+            }
+        }
+        return sliceColors[colorIndex]
     }
 
     /**
