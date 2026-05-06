@@ -3,4 +3,5 @@
     <string name="default_selection">\???</string>
     <string name="list_foods">List Foods</string>
     <string name="spin">Roll The Dice</string>
+    <string name="app_logo_description">Lunch Roulette logo</string>
 </resources>
