@@ -3,4 +3,14 @@
     <color name="colorPrimary">#5a7e8c</color>
     <color name="colorPrimaryDark">#3C535C</color>
     <color name="colorAccent">#ccd7dc</color>
+
+    <!-- Wheel slice palette — 8 colours in the blue-grey/teal family -->
+    <color name="wheel_slice_1">#3C535C</color>  <!-- dark teal-grey -->
+    <color name="wheel_slice_2">#5a7e8c</color>  <!-- medium teal -->
+    <color name="wheel_slice_3">#7fa3b0</color>  <!-- light teal -->
+    <color name="wheel_slice_4">#2d4a55</color>  <!-- deep navy-teal -->
+    <color name="wheel_slice_5">#8b9e6a</color>  <!-- muted olive -->
+    <color name="wheel_slice_6">#c4a882</color>  <!-- warm sand -->
+    <color name="wheel_slice_7">#4a6b5c</color>  <!-- forest teal -->
+    <color name="wheel_slice_8">#6b7fa0</color>  <!-- dusty slate blue -->
 </resources>

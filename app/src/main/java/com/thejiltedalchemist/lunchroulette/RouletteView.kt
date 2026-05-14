@@ -24,19 +24,27 @@ class RouletteView(context: Context,attrs: AttributeSet) : View(context, attrs) 
     private var arcAngle = 0F
 
     private val textColor = resources.getColor(R.color.colorAccent)
-    private var colorDark = resources.getColor(R.color.colorPrimaryDark)
-    private var colorLight = resources.getColor(R.color.colorPrimary)
-    private var colorAccent = resources.getColor(R.color.design_default_color_secondary_variant)
+    private val colorDark = resources.getColor(R.color.colorPrimaryDark)
+    private val colorLight = resources.getColor(R.color.colorPrimary)
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        val width = measuredWidth.coerceAtMost(measuredHeight) //Math.min
+        val width = measuredWidth.coerceAtMost(measuredHeight)
         padding = if (paddingLeft == 0) 10f else paddingLeft.toFloat()
         radius = width - (padding * 2)
         setMeasuredDimension(width, width)
     }
 
-    private val sliceColors = listOf(colorDark, colorLight, colorAccent)
+    private val sliceColors = listOf(
+        resources.getColor(R.color.wheel_slice_1),
+        resources.getColor(R.color.wheel_slice_2),
+        resources.getColor(R.color.wheel_slice_3),
+        resources.getColor(R.color.wheel_slice_4),
+        resources.getColor(R.color.wheel_slice_5),
+        resources.getColor(R.color.wheel_slice_6),
+        resources.getColor(R.color.wheel_slice_7),
+        resources.getColor(R.color.wheel_slice_8),
+    )
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
@@ -57,16 +65,16 @@ class RouletteView(context: Context,attrs: AttributeSet) : View(context, attrs) 
         drawCenter(canvas)
     }
 
-    // For the last slice, pick whichever color is neither the first slice's color
-    // (wrap-around) nor the previous slice's color (adjacent). With 3 colors there
-    // is always exactly one such choice.
+    // For the last slice, pick whichever palette entry conflicts with neither the first
+    // slice (wrap-around adjacency) nor the previous slice (direct adjacency).
     private fun colorForSlice(index: Int, total: Int): Int {
-        var colorIndex = index % 3
+        val n = sliceColors.size
+        var colorIndex = index % n
         if (index == total - 1 && total > 1) {
-            val firstColorIndex = 0  // first slice is always 0 % 3
-            val prevColorIndex = (total - 2) % 3
+            val firstColorIndex = 0
+            val prevColorIndex = (total - 2) % n
             if (colorIndex == firstColorIndex || colorIndex == prevColorIndex) {
-                colorIndex = (0..2).first { it != firstColorIndex && it != prevColorIndex }
+                colorIndex = (0 until n).first { it != firstColorIndex && it != prevColorIndex }
             }
         }
         return sliceColors[colorIndex]
