@@ -119,8 +119,10 @@ class RouletteView(context: Context,attrs: AttributeSet) : View(context, attrs) 
         centerPaint.setColor(colorLight)
         center2Paint.setColor(colorDark)
         centerPaintOutline.setColor(textColor)
-        canvas.drawCircle(radius/2, radius/2, radius/11f, centerPaintOutline)
-        canvas.drawCircle(radius/2, radius/2, radius/12f, centerPaint)
-        canvas.drawCircle(radius/2, radius/2, radius/16f, center2Paint)
+        val cx = padding + radius / 2
+        val cy = padding + radius / 2
+        canvas.drawCircle(cx, cy, radius/11f, centerPaintOutline)
+        canvas.drawCircle(cx, cy, radius/12f, centerPaint)
+        canvas.drawCircle(cx, cy, radius/16f, center2Paint)
     }
 }
