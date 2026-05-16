@@ -4,12 +4,18 @@ plugins {
 }
 
 kotlin {
-    jvmToolchain(17)
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
 }
 
 android {
     compileSdk = 36
     namespace = "com.thejiltedalchemist.lunchroulette"
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
     defaultConfig {
         applicationId = "com.thejiltedalchemist.lunchroulette"
         minSdk = 26
