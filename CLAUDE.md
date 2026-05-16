@@ -47,3 +47,14 @@ Single-module Android app (Kotlin, minSdk 26, targetSdk 34) with two activities 
 
 - `onUpgrade` in `RestaurantsDBHelper` calls `onCreate` without dropping the old table — increment `DATABASE_VERSION` when changing the schema and add a proper migration.
 - The `address` column exists in the DB schema but is never populated or read.
+
+## Feature Backlog
+
+| Branch | Work |
+|---|---|
+| `feature/winner-celebration` | Confetti animation + winner popup dialog on spin finish; highlight/pulse the winning wedge in `RouletteView` |
+| `feature/shake-to-spin` | Accelerometer-triggered spin via `SensorManager` |
+| `feature/spin-history` | SQLite table + UI for last N winners (name + timestamp) |
+| `feature/share-result` | Share winner via `Intent.ACTION_SEND` |
+| `chore/readme-and-goal` | Add `README.md` with goal statement and build instructions |
+| `chore/replace-icons` | Replace `dd_logo.png` (DoorDash asset) and Android launcher icon placeholder |
