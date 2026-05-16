@@ -1,8 +1,11 @@
 package com.thejiltedalchemist.lunchroulette
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.View
 import android.view.animation.OvershootInterpolator
 import android.widget.Button
@@ -22,10 +25,12 @@ class MainActivity : AppCompatActivity() {
     private val foodList = arrayListOf<String>()
     private lateinit var activityMainBinding: ActivityMainBinding
     private lateinit var restaurantsDBHelper : RestaurantsDBHelper
+    private lateinit var vibrator: Vibrator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         restaurantsDBHelper = RestaurantsDBHelper(this)
+        vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
 
@@ -58,6 +63,7 @@ class MainActivity : AppCompatActivity() {
 
             button.isEnabled = false
             activityMainBinding.selectedFoodText.text = getString(R.string.default_selection)
+            vibrator.vibrate(VibrationEffect.createOneShot(40, VibrationEffect.DEFAULT_AMPLITUDE))
 
             // Pointer sits at 12 o'clock (270° in canvas arc coordinates).
             // Rotating the view by finalRotation places the centre of slice spinIndex at 270°.
@@ -84,6 +90,9 @@ class MainActivity : AppCompatActivity() {
                     ivWheel.rotation = finalRotation
                     button.isEnabled = true
                     activityMainBinding.selectedFoodText.text = winner
+                    vibrator.vibrate(VibrationEffect.createWaveform(
+                        longArrayOf(0, 80, 60, 120), -1
+                    ))
                 }
             }.start()
         }
