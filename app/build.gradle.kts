@@ -3,16 +3,13 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
 }
 
+kotlin {
+    jvmToolchain(17)
+}
+
 android {
     compileSdk = 36
     namespace = "com.thejiltedalchemist.lunchroulette"
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
     defaultConfig {
         applicationId = "com.thejiltedalchemist.lunchroulette"
         minSdk = 26
