@@ -3,6 +3,10 @@ package com.thejiltedalchemist.lunchroulette
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.VibrationEffect
@@ -12,6 +16,7 @@ import android.view.animation.OvershootInterpolator
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.thejiltedalchemist.lunchroulette.databinding.ActivityMainBinding
+import kotlin.math.sqrt
 import kotlin.random.Random
 
 
@@ -27,11 +32,36 @@ class MainActivity : AppCompatActivity() {
     private lateinit var activityMainBinding: ActivityMainBinding
     private lateinit var restaurantsDBHelper : RestaurantsDBHelper
     private lateinit var vibrator: Vibrator
+    private lateinit var sensorManager: SensorManager
+    private var accelerometer: Sensor? = null
+    private var lastShakeTime = 0L
+
+    private val shakeListener = object : SensorEventListener {
+        override fun onSensorChanged(event: SensorEvent) {
+            val ax = event.values[0]
+            val ay = event.values[1]
+            val az = event.values[2]
+            val gForce = sqrt(ax * ax + ay * ay + az * az) / SensorManager.GRAVITY_EARTH
+            if (gForce > 2.5f) {
+                val now = System.currentTimeMillis()
+                if (now - lastShakeTime > 1000L) {
+                    lastShakeTime = now
+                    runOnUiThread {
+                        val button = activityMainBinding.decideButton
+                        if (button.isEnabled) button.performClick()
+                    }
+                }
+            }
+        }
+        override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {}
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         restaurantsDBHelper = RestaurantsDBHelper(this)
         vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
 
@@ -45,6 +75,18 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, RestaurantsListActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        accelerometer?.let {
+            sensorManager.registerListener(shakeListener, it, SensorManager.SENSOR_DELAY_GAME)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sensorManager.unregisterListener(shakeListener)
     }
 
     private fun loadRestaurants() {
