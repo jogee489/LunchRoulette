@@ -104,7 +104,7 @@ class MainActivity : AppCompatActivity() {
         view.pivotX = view.width / 2f
         view.pivotY = 0f
         view.animate().cancel()
-        view.rotation = -18f
+        view.rotation = 18f
         view.animate()
             .rotation(0f)
             .setDuration(140)
