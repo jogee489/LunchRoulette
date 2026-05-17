@@ -39,11 +39,6 @@ class RouletteView(context: Context,attrs: AttributeSet) : View(context, attrs) 
         resources.getColor(R.color.wheel_slice_1),
         resources.getColor(R.color.wheel_slice_2),
         resources.getColor(R.color.wheel_slice_3),
-        resources.getColor(R.color.wheel_slice_4),
-        resources.getColor(R.color.wheel_slice_5),
-        resources.getColor(R.color.wheel_slice_6),
-        resources.getColor(R.color.wheel_slice_7),
-        resources.getColor(R.color.wheel_slice_8),
     )
 
     override fun onDraw(canvas: Canvas) {
