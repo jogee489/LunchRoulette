@@ -4,8 +4,10 @@
 
 package com.thejiltedalchemist.lunchroulette
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
@@ -26,6 +28,9 @@ class RouletteView(context: Context,attrs: AttributeSet) : View(context, attrs) 
     private val textColor = resources.getColor(R.color.colorAccent)
     private val colorDark = resources.getColor(R.color.colorPrimaryDark)
     private val colorLight = resources.getColor(R.color.colorPrimary)
+
+    private var winnerIndex = -1
+    private var highlightAlpha = 0f
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
@@ -57,6 +62,12 @@ class RouletteView(context: Context,attrs: AttributeSet) : View(context, attrs) 
             canvas.drawArc(rectangle, index * arcAngle, arcAngle, true, arcPaint)
             writeText(canvas, index * arcAngle, arcAngle, item.name)
         }
+        if (winnerIndex >= 0) {
+            arcPaint.color = Color.WHITE
+            arcPaint.alpha = (highlightAlpha * 120).toInt()
+            canvas.drawArc(rectangle, winnerIndex * arcAngle, arcAngle, true, arcPaint)
+            arcPaint.alpha = 255
+        }
         drawCenter(canvas)
     }
 
@@ -81,6 +92,26 @@ class RouletteView(context: Context,attrs: AttributeSet) : View(context, attrs) 
      */
     fun addRouletteItems(items: List<RestaurantsModel>) {
         itemList = items
+        invalidate()
+    }
+
+    fun setWinner(index: Int) {
+        winnerIndex = index
+        ValueAnimator.ofFloat(0f, 1f).apply {
+            duration = 600
+            repeatMode = ValueAnimator.REVERSE
+            repeatCount = 5
+            addUpdateListener {
+                highlightAlpha = it.animatedValue as Float
+                invalidate()
+            }
+            start()
+        }
+    }
+
+    fun clearWinner() {
+        winnerIndex = -1
+        highlightAlpha = 0f
         invalidate()
     }
 

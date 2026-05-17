@@ -84,4 +84,16 @@
         app:layout_constraintTop_toBottomOf="@+id/listFoodsButton"
         app:layout_constraintVertical_bias="1.0" />
 
+    <com.thejiltedalchemist.lunchroulette.ConfettiView
+        android:id="@+id/confettiView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clickable="false"
+        android:importantForAccessibility="no"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

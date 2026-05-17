@@ -1,5 +1,6 @@
 package com.thejiltedalchemist.lunchroulette
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -63,6 +64,7 @@ class MainActivity : AppCompatActivity() {
 
             button.isEnabled = false
             activityMainBinding.selectedFoodText.text = getString(R.string.default_selection)
+            activityMainBinding.rouletteWheel.clearWinner()
             vibrator.vibrate(VibrationEffect.createOneShot(40, VibrationEffect.DEFAULT_AMPLITUDE))
 
             // Pointer sits at 12 o'clock (270° in canvas arc coordinates).
@@ -90,9 +92,23 @@ class MainActivity : AppCompatActivity() {
                     ivWheel.rotation = finalRotation
                     button.isEnabled = true
                     activityMainBinding.selectedFoodText.text = winner
-                    vibrator.vibrate(VibrationEffect.createWaveform(
-                        longArrayOf(0, 80, 60, 120), -1
-                    ))
+                    vibrator.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 80, 60, 120), -1))
+                    activityMainBinding.rouletteWheel.setWinner(spinIndex)
+                    val wheelView = activityMainBinding.rouletteWheel
+                    activityMainBinding.confettiView.burst(
+                        wheelView.x + wheelView.width / 2f,
+                        wheelView.y + wheelView.height / 2f
+                    )
+                    activityMainBinding.root.postDelayed({
+                        if (!isFinishing && !isDestroyed) {
+                            AlertDialog.Builder(this@MainActivity)
+                                .setTitle("Today's lunch!")
+                                .setMessage(winner)
+                                .setPositiveButton("Let's go!") { d, _ -> d.dismiss() }
+                                .setCancelable(true)
+                                .show()
+                        }
+                    }, 500)
                 }
             }.start()
         }
