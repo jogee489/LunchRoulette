@@ -48,13 +48,14 @@ class RouletteView(context: Context, attrs: AttributeSet) : View(context, attrs)
         super.onDraw(canvas)
         if (itemList.isEmpty()) return
 
-        val arcAngle = 360F / itemList.size
+        val arcAngle = WheelGeometry.sliceAngle(itemList.size)
         rectangle.set(padding, padding, padding + radius, padding + radius)
 
         itemList.forEachIndexed { index, item ->
             arcPaint.color = colorForSlice(index, itemList.size)
-            canvas.drawArc(rectangle, index * arcAngle, arcAngle, true, arcPaint)
-            writeText(canvas, index * arcAngle, arcAngle, item.name)
+            val startAngle = WheelGeometry.sliceStartAngle(index, itemList.size)
+            canvas.drawArc(rectangle, startAngle, arcAngle, true, arcPaint)
+            writeText(canvas, startAngle, arcAngle, item.name)
         }
         drawCenter(canvas)
     }

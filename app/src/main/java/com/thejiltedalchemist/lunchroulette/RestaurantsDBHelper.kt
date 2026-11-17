@@ -2,110 +2,128 @@ package com.thejiltedalchemist.lunchroulette
 
 import android.content.ContentValues
 import android.content.Context
-import android.database.Cursor
+import android.database.sqlite.SQLiteConstraintException
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteOpenHelper
+import android.util.Log
 
 import com.thejiltedalchemist.lunchroulette.DBContract.RestaurantsEntry as RestaurantsEntry
-import java.util.ArrayList
 
-class RestaurantsDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
+/** Outcome of storing a restaurant. */
+enum class InsertResult {
+    INSERTED,
+
+    /** A restaurant with the same name (ignoring case) is already stored. */
+    DUPLICATE,
+
+    /** Any other database failure (disk full, locked, corrupt, ...). */
+    FAILED
+}
+
+class RestaurantsDBHelper(context: Context, name: String? = DATABASE_NAME) :
+    SQLiteOpenHelper(context, name, null, DATABASE_VERSION) {
+
     override fun onCreate(db: SQLiteDatabase) {
         db.execSQL(SQL_CREATE_ENTRIES)
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // Only schema version 1 exists so far. SQL_CREATE_ENTRIES uses IF NOT EXISTS, so this is
-        // a safe no-op today. TODO: add real per-version migrations when the schema changes.
-        onCreate(db)
+        if (oldVersion < 2) {
+            // v1 -> v2: names became case-insensitively unique. Rebuild the table, keeping the
+            // oldest of any names that now collide (OR IGNORE) and the original row order.
+            // The address column was never populated, so nothing is lost by not copying it.
+            val old = "${RestaurantsEntry.TABLE_NAME}_v1"
+            db.execSQL("ALTER TABLE ${RestaurantsEntry.TABLE_NAME} RENAME TO $old")
+            db.execSQL(SQL_CREATE_ENTRIES)
+            db.execSQL(
+                "INSERT OR IGNORE INTO ${RestaurantsEntry.TABLE_NAME} (${RestaurantsEntry.COLUMN_NAME}) " +
+                    "SELECT ${RestaurantsEntry.COLUMN_NAME} FROM $old ORDER BY rowid"
+            )
+            db.execSQL("DROP TABLE $old")
+        }
     }
 
     override fun onDowngrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        onUpgrade(db, oldVersion, newVersion)
+        // Nothing to undo: the newer schema is a superset of what this version reads.
     }
 
-    /** Returns true if the restaurant was stored, false if it was rejected (e.g. the name already exists). */
-    fun insertRestaurant(restaurant: RestaurantsModel): Boolean {
-        // Gets the data repository in write mode
-        val db = writableDatabase
-
-        // Create a new map of values, where column names are the keys
-        val values = ContentValues()
-        values.put(RestaurantsEntry.COLUMN_NAME, restaurant.name)
-
-        // insert() returns -1 when the row was not inserted (e.g. a duplicate primary key)
-        return db.insert(RestaurantsEntry.TABLE_NAME, null, values) != -1L
+    /** Appends [restaurant] to the end of the list. */
+    fun insertRestaurant(restaurant: RestaurantsModel): InsertResult = try {
+        writableDatabase.insertOrThrow(RestaurantsEntry.TABLE_NAME, null, valuesFor(restaurant.name))
+        InsertResult.INSERTED
+    } catch (e: SQLiteConstraintException) {
+        InsertResult.DUPLICATE
+    } catch (e: SQLiteException) {
+        Log.e(TAG, "Failed to insert restaurant", e)
+        InsertResult.FAILED
     }
 
-    /** Returns true if a row was deleted. Matches the name exactly (LIKE would treat % and _ as wildcards). */
-    fun deleteRestaurant(name: String): Boolean {
+    /**
+     * Inserts [restaurant] at [position] (clamped), so the stored order matches the order shown on screen.
+     * Rows are ordered by rowid, so the table is rewritten in a transaction; with a handful of rows that is cheap.
+     * On any failure the transaction is rolled back and the table is left unchanged.
+     */
+    fun insertRestaurantAt(position: Int, restaurant: RestaurantsModel): InsertResult {
         val db = writableDatabase
-        val selection = RestaurantsEntry.COLUMN_NAME + " = ?"
-        return db.delete(RestaurantsEntry.TABLE_NAME, selection, arrayOf(name)) > 0
-    }
-
-    fun readRestaurant(name: String): ArrayList<RestaurantsModel> {
-        val users = ArrayList<RestaurantsModel>()
-        val db = writableDatabase
-        try {
-            val query = """
-SELECT *
-FROM ${RestaurantsEntry.TABLE_NAME}
-WHERE ${RestaurantsEntry.COLUMN_NAME}=?
-"""
-            db.rawQuery(query, arrayOf(name)).use { cursor ->
-                val nameColumn = cursor.getColumnIndex(RestaurantsEntry.COLUMN_NAME)
-                while (cursor.moveToNext()) {
-                    users.add(
-                            RestaurantsModel(
-                                    cursor.getString(nameColumn)
-                            )
-                    )
-                }
-                return users
-            }
+        db.beginTransaction()
+        return try {
+            val names = readAllRestaurants().map { it.name }.toMutableList()
+            names.add(position.coerceIn(0, names.size), restaurant.name)
+            db.delete(RestaurantsEntry.TABLE_NAME, null, null)
+            names.forEach { db.insertOrThrow(RestaurantsEntry.TABLE_NAME, null, valuesFor(it)) }
+            db.setTransactionSuccessful()
+            InsertResult.INSERTED
+        } catch (e: SQLiteConstraintException) {
+            InsertResult.DUPLICATE
         } catch (e: SQLiteException) {
-            // if table not yet present, create it
-            db.execSQL(SQL_CREATE_ENTRIES)
-            return ArrayList()
+            Log.e(TAG, "Failed to insert restaurant at $position", e)
+            InsertResult.FAILED
+        } finally {
+            db.endTransaction()
         }
     }
 
+    /**
+     * Returns true if a row was deleted. The name column is case-insensitive, so this matches the
+     * same name the uniqueness check does; `=` is used rather than LIKE so `%` and `_` are literal.
+     */
+    fun deleteRestaurant(name: String): Boolean = try {
+        writableDatabase.delete(RestaurantsEntry.TABLE_NAME, "${RestaurantsEntry.COLUMN_NAME} = ?", arrayOf(name)) > 0
+    } catch (e: SQLiteException) {
+        Log.e(TAG, "Failed to delete restaurant", e)
+        false
+    }
+
+    /** All restaurants in the order they appear on screen (insertion order). */
     fun readAllRestaurants(): ArrayList<RestaurantsModel> {
-        val users = ArrayList<RestaurantsModel>()
-        val db = writableDatabase
-        val cursor: Cursor?
-        try {
-            cursor = db.rawQuery("select * from " + RestaurantsEntry.TABLE_NAME, null)
-        } catch (e: SQLiteException) {
-            db.execSQL(SQL_CREATE_ENTRIES)
-            return ArrayList()
+        val restaurants = ArrayList<RestaurantsModel>()
+        readableDatabase.rawQuery(
+            "SELECT ${RestaurantsEntry.COLUMN_NAME} FROM ${RestaurantsEntry.TABLE_NAME} ORDER BY rowid",
+            null
+        ).use { cursor ->
+            val nameColumn = cursor.getColumnIndexOrThrow(RestaurantsEntry.COLUMN_NAME)
+            while (cursor.moveToNext()) restaurants.add(RestaurantsModel(cursor.getString(nameColumn)))
         }
-        var name: String
-        if (cursor!!.moveToFirst()) {
-            while (!cursor.isAfterLast) {
-                name = cursor.getString(cursor.getColumnIndexOrThrow(RestaurantsEntry.COLUMN_NAME))
-
-                users.add(RestaurantsModel(name))
-                cursor.moveToNext()
-            }
-        }
-        cursor.close()
-        return users
+        return restaurants
     }
+
+    private fun valuesFor(name: String) = ContentValues().apply { put(RestaurantsEntry.COLUMN_NAME, name) }
 
     companion object {
-        // If you change the database schema, you must increment the database version.
-        const val DATABASE_VERSION = 1
+        private const val TAG = "RestaurantsDBHelper"
+
+        // If you change the database schema, you must increment the database version
+        // and add the matching step to onUpgrade.
+        const val DATABASE_VERSION = 2
         const val DATABASE_NAME = "FeedReader.db"
 
+        // COLLATE NOCASE makes both the PRIMARY KEY uniqueness and `name = ?` comparisons ignore
+        // ASCII case ("Pizza" == "pizza"). Non-ASCII letters are still compared exactly.
         private val SQL_CREATE_ENTRIES =
                 "CREATE TABLE IF NOT EXISTS " + RestaurantsEntry.TABLE_NAME + " (" +
-                        RestaurantsEntry.COLUMN_NAME + " TEXT PRIMARY KEY," +
+                        RestaurantsEntry.COLUMN_NAME + " TEXT COLLATE NOCASE PRIMARY KEY," +
                         RestaurantsEntry.COLUMN_ADDRESS + " TEXT)"
-
-        private val SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + RestaurantsEntry.TABLE_NAME
     }
 
 }

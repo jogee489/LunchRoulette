@@ -10,6 +10,8 @@
     <string name="error_name_blank">Name cannot be blank</string>
     <string name="error_max_restaurants">Maximum of %1$d restaurants reached</string>
     <string name="error_duplicate">%1$s is already on the list</string>
+    <string name="error_save_failed">Could not save %1$s</string>
+    <string name="error_delete_failed">Could not delete %1$s</string>
     <string name="food_added">Added %1$s</string>
     <string name="food_deleted">\"%1$s\" deleted.</string>
 </resources>

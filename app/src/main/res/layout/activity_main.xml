@@ -42,6 +42,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/selectedFoodText" />
 
+    <!-- The pointer must stay centred at 12 o'clock over the wheel: WheelGeometry.POINTER_ANGLE assumes it. -->
     <ImageView
         android:id="@+id/ivTarget"
         android:layout_width="50dp"

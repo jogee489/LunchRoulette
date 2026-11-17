@@ -45,6 +45,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadRestaurants() {
+        // Never rebuild the wheel under a running spin; the animation's end re-enables the buttons.
+        if (spinAnimator?.isRunning == true) return
+
         val restaurantsList = restaurantsDBHelper.readAllRestaurants()
         val names = restaurantsList.map { it.name }
         if (names != foodList) {

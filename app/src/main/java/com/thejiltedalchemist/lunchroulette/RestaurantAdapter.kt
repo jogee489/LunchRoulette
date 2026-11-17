@@ -31,23 +31,37 @@ class RestaurantAdapter(private val items: ArrayList<RestaurantsModel>,
 
     fun get(position: Int) = items[position]
 
-    fun removeAt(position: Int) {
-        restaurantsDBHelper.deleteRestaurant(getNameAt(position))
+    /**
+     * Deletes the row at [position] from the database and the list. Returns false (leaving the list
+     * untouched and putting the swiped row back on screen) if the database delete failed.
+     */
+    fun removeAt(position: Int): Boolean {
+        if (!restaurantsDBHelper.deleteRestaurant(getNameAt(position))) {
+            notifyItemChanged(position)
+            return false
+        }
         items.removeAt(position)
         notifyItemRemoved(position)
-    }
-
-    /** Inserts [item] at [position] (clamped to the list bounds). Returns false if it could not be stored. */
-    fun addAt(position: Int, item: RestaurantsModel): Boolean {
-        if (!restaurantsDBHelper.insertRestaurant(item)) return false
-        val index = position.coerceIn(0, items.size)
-        items.add(index, item)
-        notifyItemInserted(index)
         return true
     }
 
-    /** Appends a new restaurant. Returns false if the name is already on the list. */
-    fun createNew(locationName: String): Boolean = addAt(items.size, RestaurantsModel(locationName))
+    /**
+     * Stores [item] at [position] (clamped to the list bounds) in both the database and the list,
+     * so the on-screen order and the stored order stay the same. The list is only changed on success.
+     */
+    fun addAt(position: Int, item: RestaurantsModel): InsertResult {
+        val index = position.coerceIn(0, items.size)
+        val result = if (index == items.size) {
+            restaurantsDBHelper.insertRestaurant(item)
+        } else {
+            restaurantsDBHelper.insertRestaurantAt(index, item)
+        }
+        if (result == InsertResult.INSERTED) {
+            items.add(index, item)
+            notifyItemInserted(index)
+        }
+        return result
+    }
 
 }
 

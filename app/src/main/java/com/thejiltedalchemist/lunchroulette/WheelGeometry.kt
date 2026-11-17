@@ -16,13 +16,16 @@ object WheelGeometry {
         return 360f / count
     }
 
+    /** Angle at which slice [index] starts, in canvas degrees clockwise from 3 o'clock (what [RouletteView] draws). */
+    fun sliceStartAngle(index: Int, count: Int): Float = sliceAngle(count) * index
+
     /**
      * View rotation (degrees, clockwise, in [0, 360)) that places the centre of slice [index]
      * directly under the pointer.
      */
     fun rotationForWinner(index: Int, count: Int): Float {
         require(index in 0 until count) { "index $index out of range for $count slices" }
-        val raw = POINTER_ANGLE - sliceAngle(count) * (index + 0.5f)
+        val raw = POINTER_ANGLE - (sliceStartAngle(index, count) + sliceAngle(count) / 2f)
         return ((raw % 360f) + 360f) % 360f
     }
 }
