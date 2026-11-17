@@ -15,7 +15,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ./gradlew test
 
 # Run a single unit test class
-./gradlew test --tests "com.thejiltedalchemist.lunchroulette.ExampleUnitTest"
+./gradlew test --tests "com.thejiltedalchemist.lunchroulette.WheelGeometryTest"
 
 # Run instrumented tests (requires connected device or emulator)
 ./gradlew connectedAndroidTest
@@ -26,9 +26,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture Overview
 
-Single-module Android app (Kotlin, minSdk 26, targetSdk 34) with two activities and a custom view:
+Single-module Android app (Kotlin, minSdk 26, targetSdk 35) with two activities and a custom view:
 
-**MainActivity** — entry point. Loads restaurants from SQLite on `onCreate`, renders the `RouletteView`, and drives the spin animation via `CountDownTimer`. The winner is determined *before* the animation starts (the wheel spins to land on a pre-chosen index).
+**MainActivity** — entry point. Reloads restaurants from SQLite in `onResume` (so edits made on the list screen show up), renders the `RouletteView`, and drives the spin with an `ObjectAnimator` on the view's rotation. The winner is determined *before* the animation starts, and `WheelGeometry.rotationForWinner` (pure, unit-tested) gives the rotation that puts that slice under the 12 o'clock pointer.
 
 **RestaurantsListActivity** — CRUD list screen. Uses a `RecyclerView` with `RestaurantAdapter`. Swipe-to-delete is handled by `SwipeToDeleteCallback` (extends `ItemTouchHelper.SimpleCallback`); deleted items are held in memory and can be restored via a Snackbar undo action.
 
@@ -45,5 +45,5 @@ Single-module Android app (Kotlin, minSdk 26, targetSdk 34) with two activities 
 
 ## Known Issues / TODOs
 
-- `onUpgrade` in `RestaurantsDBHelper` calls `onCreate` without dropping the old table — increment `DATABASE_VERSION` when changing the schema and add a proper migration.
+- `onUpgrade` in `RestaurantsDBHelper` just re-runs `CREATE TABLE IF NOT EXISTS` (a no-op) — when the schema changes, increment `DATABASE_VERSION` and add a real per-version migration.
 - The `address` column exists in the DB schema but is never populated or read.

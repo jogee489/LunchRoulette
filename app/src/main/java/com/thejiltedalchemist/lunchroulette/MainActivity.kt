@@ -1,19 +1,23 @@
 package com.thejiltedalchemist.lunchroulette
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ObjectAnimator
 import android.content.Intent
 import android.os.Bundle
-import android.os.CountDownTimer
-import android.widget.Button
+import android.view.View
+import android.view.animation.DecelerateInterpolator
 import androidx.appcompat.app.AppCompatActivity
 import com.thejiltedalchemist.lunchroulette.databinding.ActivityMainBinding
 import java.util.Random
-
 
 class MainActivity : AppCompatActivity() {
 
     private val foodList = arrayListOf<String>()
     private lateinit var activityMainBinding: ActivityMainBinding
-    private lateinit var restaurantsDBHelper : RestaurantsDBHelper
+    private lateinit var restaurantsDBHelper: RestaurantsDBHelper
+    private var spinAnimator: ObjectAnimator? = null
+    private val random = Random()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,52 +25,82 @@ class MainActivity : AppCompatActivity() {
         activityMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(activityMainBinding.root)
 
-        loadRestaurants()
-
-        // Spin the wheel
-        pressToSpin(activityMainBinding.decideButton)
+        activityMainBinding.decideButton.setOnClickListener { spin() }
 
         // Switch to the list view on click
         activityMainBinding.listFoodsButton.setOnClickListener {
-            val intent = Intent(this, RestaurantsListActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, RestaurantsListActivity::class.java))
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // The list screen may have changed the data while this activity was in the background.
+        loadRestaurants()
+    }
+
+    override fun onDestroy() {
+        spinAnimator?.cancel()
+        super.onDestroy()
     }
 
     private fun loadRestaurants() {
         val restaurantsList = restaurantsDBHelper.readAllRestaurants()
-        restaurantsList.forEach { res -> foodList.add(res.name) }
-        if (foodList.isEmpty()) activityMainBinding.decideButton.isEnabled = false
-        activityMainBinding.rouletteWheel.addRouletteItems(restaurantsList)
+        val names = restaurantsList.map { it.name }
+        if (names != foodList) {
+            foodList.clear()
+            foodList.addAll(names)
+            activityMainBinding.rouletteWheel.rotation = 0f
+            activityMainBinding.selectedFoodText.text = resources.getText(R.string.default_selection)
+            activityMainBinding.rouletteWheel.addRouletteItems(restaurantsList)
+        }
+        setSpinning(false)
     }
 
-    private fun pressToSpin(button: Button) {
-        button.setOnClickListener {
-            val ivWheel = activityMainBinding.rouletteWheel
-            val foodCount = foodList.count()
-            var spin = Random().nextInt(foodCount)
-            val winner = foodList[spin]
+    private fun setSpinning(spinning: Boolean) {
+        activityMainBinding.decideButton.isEnabled = !spinning && foodList.isNotEmpty()
+        activityMainBinding.listFoodsButton.isEnabled = !spinning
+    }
 
-            button.isEnabled = false
-            activityMainBinding.selectedFoodText.text = resources.getText(R.string.default_selection)
-            spin *= (360 / foodCount) // winner in degrees
-            ivWheel.rotation = spin.toFloat()
+    private fun spin() {
+        if (foodList.isEmpty() || spinAnimator?.isRunning == true) return
 
-            val spinSpeed = 36 // Picked number to make it look fast!
-            val interval = 50L // Higher to avoid skips
-            val rotations = 3L
-            val spinDuration = (360*rotations*interval)/spinSpeed // Land where we started
-            object : CountDownTimer(spinDuration, interval) {
-                override fun onTick(millisUntilFinished: Long) {
-                    ivWheel.rotation -= spinSpeed
+        // The winner is decided up front; the wheel then spins to land the pointer on it.
+        val winnerIndex = random.nextInt(foodList.size)
+        val winner = foodList[winnerIndex]
+        val target = WheelGeometry.rotationForWinner(winnerIndex, foodList.size)
+
+        val wheel: View = activityMainBinding.rouletteWheel
+        // The wheel always rests at a normalised angle in [0, 360), so this sweeps the wheel
+        // counter-clockwise through at least two full turns before settling on the target.
+        val end = target - 360f * SPIN_ROTATIONS
+
+        setSpinning(true)
+        activityMainBinding.selectedFoodText.text = resources.getText(R.string.default_selection)
+
+        spinAnimator = ObjectAnimator.ofFloat(wheel, View.ROTATION, wheel.rotation, end).apply {
+            duration = SPIN_DURATION_MS
+            interpolator = DecelerateInterpolator()
+            addListener(object : AnimatorListenerAdapter() {
+                private var cancelled = false
+
+                override fun onAnimationCancel(animation: Animator) {
+                    cancelled = true
                 }
 
-                override fun onFinish() {
-                    // enabling the button again
-                    button.isEnabled = true
+                override fun onAnimationEnd(animation: Animator) {
+                    if (cancelled) return
+                    wheel.rotation = target
                     activityMainBinding.selectedFoodText.text = winner
+                    setSpinning(false)
                 }
-            }.start()
+            })
+            start()
         }
+    }
+
+    companion object {
+        private const val SPIN_ROTATIONS = 3
+        private const val SPIN_DURATION_MS = 3000L
     }
 }

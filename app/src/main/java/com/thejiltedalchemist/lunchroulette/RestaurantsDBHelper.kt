@@ -3,7 +3,6 @@ package com.thejiltedalchemist.lunchroulette
 import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
-import android.database.sqlite.SQLiteConstraintException
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteOpenHelper
@@ -17,10 +16,8 @@ class RestaurantsDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        // This database is only a cache for online data, so its upgrade policy is
-        // to simply to discard the data and start over
-//        db.execSQL(SQL_DELETE_ENTRIES)
-        // TODO: Ensure there is logic to assist in a graceful migration of data
+        // Only schema version 1 exists so far. SQL_CREATE_ENTRIES uses IF NOT EXISTS, so this is
+        // a safe no-op today. TODO: add real per-version migrations when the schema changes.
         onCreate(db)
     }
 
@@ -28,7 +25,7 @@ class RestaurantsDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
         onUpgrade(db, oldVersion, newVersion)
     }
 
-    @Throws(SQLiteConstraintException::class)
+    /** Returns true if the restaurant was stored, false if it was rejected (e.g. the name already exists). */
     fun insertRestaurant(restaurant: RestaurantsModel): Boolean {
         // Gets the data repository in write mode
         val db = writableDatabase
@@ -37,25 +34,15 @@ class RestaurantsDBHelper(context: Context) : SQLiteOpenHelper(context, DATABASE
         val values = ContentValues()
         values.put(RestaurantsEntry.COLUMN_NAME, restaurant.name)
 
-        // Insert the new row, returning the primary key value of the new row
-        val newRowId = db.insert(RestaurantsEntry.TABLE_NAME, null, values)
-        println("Adding restaurant #$newRowId")
-
-        return true
+        // insert() returns -1 when the row was not inserted (e.g. a duplicate primary key)
+        return db.insert(RestaurantsEntry.TABLE_NAME, null, values) != -1L
     }
 
-    @Throws(SQLiteConstraintException::class)
+    /** Returns true if a row was deleted. Matches the name exactly (LIKE would treat % and _ as wildcards). */
     fun deleteRestaurant(name: String): Boolean {
-        // Gets the data repository in write mode
         val db = writableDatabase
-        // Define 'where' part of query.
-        val selection = RestaurantsEntry.COLUMN_NAME + " LIKE ?"
-        // Specify arguments in placeholder order.
-        val selectionArgs = arrayOf(name)
-        // Issue SQL statement.
-        db.delete(RestaurantsEntry.TABLE_NAME, selection, selectionArgs)
-
-        return true
+        val selection = RestaurantsEntry.COLUMN_NAME + " = ?"
+        return db.delete(RestaurantsEntry.TABLE_NAME, selection, arrayOf(name)) > 0
     }
 
     fun readRestaurant(name: String): ArrayList<RestaurantsModel> {
@@ -114,7 +101,7 @@ WHERE ${RestaurantsEntry.COLUMN_NAME}=?
         const val DATABASE_NAME = "FeedReader.db"
 
         private val SQL_CREATE_ENTRIES =
-                "CREATE TABLE " + RestaurantsEntry.TABLE_NAME + " (" +
+                "CREATE TABLE IF NOT EXISTS " + RestaurantsEntry.TABLE_NAME + " (" +
                         RestaurantsEntry.COLUMN_NAME + " TEXT PRIMARY KEY," +
                         RestaurantsEntry.COLUMN_ADDRESS + " TEXT)"
 

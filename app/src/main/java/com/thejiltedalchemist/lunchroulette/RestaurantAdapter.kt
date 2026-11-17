@@ -37,16 +37,17 @@ class RestaurantAdapter(private val items: ArrayList<RestaurantsModel>,
         notifyItemRemoved(position)
     }
 
-    fun addAt(position: Int, item: RestaurantsModel) {
-        restaurantsDBHelper.insertRestaurant(item)
-        items.add(position, item)
-        notifyItemInserted(position)
+    /** Inserts [item] at [position] (clamped to the list bounds). Returns false if it could not be stored. */
+    fun addAt(position: Int, item: RestaurantsModel): Boolean {
+        if (!restaurantsDBHelper.insertRestaurant(item)) return false
+        val index = position.coerceIn(0, items.size)
+        items.add(index, item)
+        notifyItemInserted(index)
+        return true
     }
 
-    fun createNew(locationName: String) {
-        val newLocation = RestaurantsModel(locationName)
-        addAt(items.size, newLocation)
-    }
+    /** Appends a new restaurant. Returns false if the name is already on the list. */
+    fun createNew(locationName: String): Boolean = addAt(items.size, RestaurantsModel(locationName))
 
 }
 

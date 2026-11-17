@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:fontFamily="@font/muli_bold"
-            android:hint="add new food..."
+            android:hint="@string/add_food_hint"
             android:inputType="textPersonName"
             android:maxLength="20" />
 
@@ -39,7 +39,7 @@
         android:layout_height="49dp"
         android:layout_marginBottom="80dp"
         android:background="@color/colorPrimary"
-        android:text="Add Food"
+        android:text="@string/add_food"
         android:textColor="@android:color/background_light"
         app:layout_constraintBottom_toTopOf="@+id/backToMain"
         app:layout_constraintEnd_toEndOf="parent"
@@ -51,7 +51,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
-        android:text="Back"
+        android:text="@string/back"
         android:textColor="@android:color/background_light"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
