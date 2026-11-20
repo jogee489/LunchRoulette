@@ -40,7 +40,7 @@ Single-module Android app (Kotlin, minSdk 26, targetSdk 35) with two activities 
 
 ## Git Workflow
 
-- Branch prefixes: `feature/`, `bug/`, `chore/` — always follow this convention.
+- Branch prefixes: `feature/`, `fix/`, `chore/` (pick by the type of task) — always follow this convention.
 - Never merge into `main` without explicit instruction.
 
 ## Known Issues / TODOs
