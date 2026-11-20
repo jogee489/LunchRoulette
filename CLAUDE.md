@@ -42,6 +42,7 @@ Single-module Android app (Kotlin, minSdk 26, targetSdk 35) with two activities 
 
 - Branch prefixes: `feature/`, `fix/`, `chore/` (pick by the type of task) — always follow this convention.
 - Never merge into `main` without explicit instruction.
+- Anything Claude Code writes must say so. Every commit message and PR description Claude Code creates ends with the line `🤖 Generated with [Claude Code](https://claude.com/claude-code)` (in commits, above the `Co-Authored-By` trailer, which stays).
 
 ## Known Issues / TODOs
 
